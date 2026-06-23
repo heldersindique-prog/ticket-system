@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelderLab - Sistema de Tickets</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; }
+        header { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 18px; font-weight: 600; color: #ffffff; letter-spacing: 0.5px; }
+        header span { font-size: 12px; color: #666; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+        .stat-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 20px; }
+        .stat-card .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .stat-card .value { font-size: 32px; font-weight: 700; color: #ffffff; }
+        .stat-card.critico .value { color: #ef4444; }
+        .stat-card.aberto .value { color: #f59e0b; }
+        .stat-card.fechado .value { color: #22c55e; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .toolbar h2 { font-size: 14px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        table { width: 100%; border-collapse: collapse; background: #1a1a1a; border-radius: 6px; overflow: hidden; border: 1px solid #2a2a2a; }
+        th { background: #111; padding: 12px 16px; text-align: left; font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #2a2a2a; }
+        td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid #1f1f1f; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #1f1f1f; }
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-p1 { background: #450a0a; color: #ef4444; }
+        .badge-p2 { background: #431407; color: #f97316; }
+        .badge-p3 { background: #1c1917; color: #a8a29e; }
+        .badge-aberto { background: #422006; color: #f59e0b; }
+        .badge-fechado { background: #052e16; color: #22c55e; }
+        a { color: #60a5fa; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .empty { text-align: center; padding: 48px; color: #555; font-size: 14px; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>HelderLab - Sistema de Tickets Help Desk</h1>
+    <span>IT Support Dashboard</span>
+</header>
+<div class="container">
+    <div class="stats">
+        <div class="stat-card">
+            <div class="label">Total de Tickets</div>
+            <div class="value">{{ stats.total }}</div>
+        </div>
+        <div class="stat-card aberto">
+            <div class="label">Em Aberto</div>
+            <div class="value">{{ stats.abertos }}</div>
+        </div>
+        <div class="stat-card fechado">
+            <div class="label">Fechados</div>
+            <div class="value">{{ stats.fechados }}</div>
+        </div>
+        <div class="stat-card critico">
+            <div class="label">P1 Critico</div>
+            <div class="value">{{ stats.por_prioridade.get('P1 - Critico', 0) }}</div>
+        </div>
+    </div>
+    <div class="toolbar">
+        <h2>Fila de Tickets</h2>
+        <a href="/novo" class="btn btn-primary">+ Novo Ticket</a>
+    </div>
+    {% if tickets %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Titulo</th>
+                <th>Categoria</th>
+                <th>Prioridade</th>
+                <th>Estado</th>
+                <th>Criado em</th>
+                <th>Acao</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for t in tickets %}
+            <tr>
+                <td>{{ t.id }}</td>
+                <td><a href="/ticket/{{ t.id }}">{{ t.titulo }}</a></td>
+                <td>{{ t.categoria }}</td>
+                <td>
+                    {% if 'P1' in t.prioridade %}
+                        <span class="badge badge-p1">{{ t.prioridade }}</span>
+                    {% elif 'P2' in t.prioridade %}
+                        <span class="badge badge-p2">{{ t.prioridade }}</span>
+                    {% else %}
+                        <span class="badge badge-p3">{{ t.prioridade }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if t.estado == 'Aberto' %}
+                        <span class="badge badge-aberto">Aberto</span>
+                    {% else %}
+                        <span class="badge badge-fechado">Fechado</span>
+                    {% endif %}
+                </td>
+                <td>{{ t.criado_em }}</td>
+                <td><a href="/ticket/{{ t.id }}" class="btn btn-sm btn-primary">Ver</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">Nenhum ticket registado. Cria o primeiro ticket.</div>
+    {% endif %}
+</div>
+</body>
+</html>

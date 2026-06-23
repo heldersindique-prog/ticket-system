@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket #{{ ticket.id }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; }
+        header { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 18px; font-weight: 600; color: #ffffff; }
+        .container { max-width: 700px; margin: 40px auto; padding: 0 32px; }
+        .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 28px; margin-bottom: 20px; }
+        .ticket-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .ticket-id { font-size: 12px; color: #555; margin-bottom: 6px; }
+        .ticket-titulo { font-size: 18px; font-weight: 600; color: #fff; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-p1 { background: #450a0a; color: #ef4444; }
+        .badge-p2 { background: #431407; color: #f97316; }
+        .badge-p3 { background: #1c1917; color: #a8a29e; }
+        .badge-aberto { background: #422006; color: #f59e0b; }
+        .badge-fechado { background: #052e16; color: #22c55e; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .info-item .label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .info-item .val { font-size: 13px; color: #ccc; }
+        .descricao { background: #111; border-radius: 4px; padding: 16px; font-size: 13px; color: #bbb; line-height: 1.6; }
+        h3 { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+        textarea { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 4px; padding: 12px; color: #e0e0e0; font-size: 13px; font-family: inherit; height: 90px; resize: vertical; }
+        textarea:focus { outline: none; border-color: #2563eb; }
+        .btn { padding: 9px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: none; display: inline-block; margin-right: 8px; margin-top: 10px; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-secondary { background: #2a2a2a; color: #aaa; }
+        a { color: #60a5fa; text-decoration: none; }
+        .resolucao { background: #052e16; border: 1px solid #166534; border-radius: 4px; padding: 16px; font-size: 13px; color: #86efac; line-height: 1.6; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>HelderLab - Sistema de Tickets Help Desk</h1>
+    <a href="/" style="color:#666; font-size:13px;">Voltar ao painel</a>
+</header>
+<div class="container">
+    <div class="card">
+        <div class="ticket-header">
+            <div>
+                <div class="ticket-id">Ticket #{{ ticket.id }}</div>
+                <div class="ticket-titulo">{{ ticket.titulo }}</div>
+            </div>
+            <div>
+                {% if 'P1' in ticket.prioridade %}
+                    <span class="badge badge-p1">{{ ticket.prioridade }}</span>
+                {% elif 'P2' in ticket.prioridade %}
+                    <span class="badge badge-p2">{{ ticket.prioridade }}</span>
+                {% else %}
+                    <span class="badge badge-p3">{{ ticket.prioridade }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="label">Categoria</div>
+                <div class="val">{{ ticket.categoria }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Estado</div>
+                <div class="val">
+                    {% if ticket.estado == 'Aberto' %}
+                        <span class="badge badge-aberto">Aberto</span>
+                    {% else %}
+                        <span class="badge badge-fechado">Fechado</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="label">Criado em</div>
+                <div class="val">{{ ticket.criado_em }}</div>
+            </div>
+            {% if ticket.fechado_em %}
+            <div class="info-item">
+                <div class="label">Fechado em</div>
+                <div class="val">{{ ticket.fechado_em }}</div>
+            </div>
+            {% endif %}
+        </div>
+        <h3>Descricao</h3>
+        <div class="descricao">{{ ticket.descricao }}</div>
+        {% if ticket.resolucao %}
+        <br>
+        <h3>Resolucao</h3>
+        <div class="resolucao">{{ ticket.resolucao }}</div>
+        {% endif %}
+    </div>
+    {% if ticket.estado == 'Aberto' %}
+    <div class="card">
+        <h3>Fechar Ticket</h3>
+        <form method="POST" action="/fechar/{{ ticket.id }}">
+            <textarea name="resolucao" required placeholder="Descreve a solucao aplicada"></textarea>
+            <button type="submit" class="btn btn-danger">Fechar Ticket</button>
+            <a href="/" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>
